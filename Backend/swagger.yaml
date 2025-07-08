@@ -1,0 +1,273 @@
+openapi: 3.0.0
+info:
+  title: SeedSwap API
+  version: 1.0.0
+  description: Community-Based Native Seed Exchange Platform
+
+servers:
+  - url: http://localhost:5000
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+        location: { type: string }
+        gardenType: { type: string }
+
+    Seed:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        type: { type: string }
+        location: { type: string }
+        image: { type: string }
+        public: { type: boolean }
+
+    Swap:
+      type: object
+      properties:
+        requester: { type: string }
+        receiver: { type: string }
+        requestedSeed: { type: string }
+        offeredSeed: { type: string }
+        status: { type: string }
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/User" }
+      responses:
+        201: { description: Registered }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and get token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Token returned
+
+  /api/auth/user/me:
+  get:
+    tags: [User]
+    summary: Get current user profile
+    security:
+      - bearerAuth: []
+    responses:
+      200: { description: User info }
+
+  /api/user/profile:
+    put:
+      tags: [User]
+      summary: Update profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                location: { type: string }
+                gardenType: { type: string }
+                profileImg: { type: string, format: binary }
+      responses:
+        200: { description: Profile updated }
+
+  /api/seeds:
+    post:
+      tags: [Seeds]
+      summary: Create a seed
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                type: { type: string }
+                location: { type: string }
+                image: { type: string, format: binary }
+                public: { type: boolean }
+      responses:
+        201: { description: Seed created }
+
+    get:
+      tags: [Seeds]
+      summary: Get my seeds
+      security:
+        - bearerAuth: []
+      responses:
+        200: { description: List of seeds }
+
+  /api/seeds/{id}:
+    put:
+      tags: [Seeds]
+      summary: Edit a seed
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                type: { type: string }
+                location: { type: string }
+                image: { type: string, format: binary }
+                public: { type: boolean }
+      responses:
+        200: { description: Seed updated }
+
+    delete:
+      tags: [Seeds]
+      summary: Delete a seed
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Seed deleted }
+
+  /api/marketplace:
+    get:
+      tags: [Marketplace]
+      summary: Get public seeds (with filters)
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: type
+          in: query
+          schema: { type: string }
+        - name: location
+          in: query
+          schema: { type: string }
+      responses:
+        200: { description: Public seeds list }
+
+  /api/swaps:
+    post:
+      tags: [Swaps]
+      summary: Initiate a swap
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestedSeedId: { type: string }
+                offeredSeedId: { type: string }
+      responses:
+        201: { description: Swap created }
+
+    get:
+      tags: [Swaps]
+      summary: Get my swaps
+      security:
+        - bearerAuth: []
+      responses:
+        200: { description: List of swaps }
+
+  /api/swaps/{id}:
+    put:
+      tags: [Swaps]
+      summary: Update swap status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string }
+      responses:
+        200: { description: Swap updated }
+
+  /api/messages:
+    post:
+      tags: [Messages]
+      summary: Send a message
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                swapId: { type: string }
+                text: { type: string }
+      responses:
+        201: { description: Message sent }
+
+  /api/messages/{swapId}:
+    get:
+      tags: [Messages]
+      summary: Get messages by swap
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: swapId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        200: { description: Chat history }
+
+  /api/user/dashboard:
+    get:
+      tags: [User]
+      summary: Get dashboard stats
+      security:
+        - bearerAuth: []
+      responses:
+        200: { description: Dashboard metrics }
