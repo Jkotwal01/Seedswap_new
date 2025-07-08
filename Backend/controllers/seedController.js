@@ -1,24 +1,26 @@
 const Seed = require("../models/seed");
 
 exports.createSeed = async (req, res) => {
-  const { name, type, quantity, location } = req.body;
   try {
-    const image = req.file ? req.file.path : null;
+    const { name, type, location, description, public } = req.body;
 
-    const seed = await Seed.create({
+    const newSeed = new Seed({
       name,
       type,
-      quantity,
       location,
-      image,
+      description,
+      public, // ✅ use `public` flag
+      image: req.file?.filename,
       owner: req.userId,
     });
 
-    res.status(201).json(seed);
+    await newSeed.save();
+    res.status(201).json(newSeed);
   } catch (err) {
-    res.status(500).json({ msg: "Failed to create seed" });
+    res.status(500).json({ msg: "Server error" });
   }
 };
+
 
 exports.getAllSeeds = async (req, res) => {
   try {
@@ -51,20 +53,30 @@ exports.getSeedById = async (req, res) => {
 
 exports.updateSeed = async (req, res) => {
   try {
-    const seed = await Seed.findById(req.params.id);
-    if (!seed) return res.status(404).json({ msg: "Seed not found" });
+    const { id } = req.params;
 
-    if (seed.owner.toString() !== req.userId)
-      return res.status(403).json({ msg: "Unauthorized" });
+    const updates = {
+      name: req.body.name,
+      type: req.body.type,
+      location: req.body.location,
+      description: req.body.description,
+      public: req.body.public, // ✅ include `public`
+    };
 
-    const updated = await Seed.findByIdAndUpdate(req.params.id, req.body, {
+    if (req.file?.filename) {
+      updates.image = req.file.filename;
+    }
+
+    const updatedSeed = await Seed.findByIdAndUpdate(id, updates, {
       new: true,
     });
-    res.status(200).json(updated);
+
+    res.status(200).json(updatedSeed);
   } catch (err) {
     res.status(500).json({ msg: "Server error" });
   }
 };
+
 
 exports.deleteSeed = async (req, res) => {
   try {

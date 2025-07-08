@@ -19,6 +19,8 @@ app.use("/api/seeds", require("./routes/seedRoutes"));
 app.use("/api/swaps", require("./routes/swapRoutes"));
 app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/marketplace", require("./routes/marketplaceRoutes"));
+app.use("/api", require("./routes/messageRoutes")); // This is route for messaging between the swapes
+
 
 // for tesing only 
 app.use("/api/test", testRoutes);
