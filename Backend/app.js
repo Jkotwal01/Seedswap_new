@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const testRoutes = require("./routes/testRoutes");
+
+
 
 dotenv.config();
 connectDB();
@@ -16,6 +19,9 @@ app.use("/api/seeds", require("./routes/seedRoutes"));
 app.use("/api/swaps", require("./routes/swapRoutes"));
 app.use("/api/user", require("./routes/userRoutes"));
 app.use("/api/marketplace", require("./routes/marketplaceRoutes"));
+
+// for tesing only 
+app.use("/api/test", testRoutes);
 
 
 

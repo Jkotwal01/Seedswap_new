@@ -1,15 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const { verifyToken } = require("../middlewares/auth");
+
 const {
   initiateSwap,
   getMySwaps,
-  updateSwapStatus,
+  acceptSwap,
+  rejectSwap,
+  completeSwap,
 } = require("../controllers/swapController");
 
-// Protected
+const { verifyToken } = require("../middlewares/auth");
+
 router.post("/", verifyToken, initiateSwap);
 router.get("/me", verifyToken, getMySwaps);
-router.patch("/:id", verifyToken, updateSwapStatus);
+router.put("/:id/accept", verifyToken, acceptSwap);
+router.put("/:id/reject", verifyToken, rejectSwap);
+router.put("/:id/complete", verifyToken, completeSwap);
 
 module.exports = router;
