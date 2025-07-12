@@ -2,7 +2,7 @@
 
 A community-based native seed exchange platform backend API.
 
-![SeedSwap Banner](./img/Seedswap.png)
+![SeedSwap Banner](Backend/img/Seedswap.png)
 
 ## 📋 Features
 
